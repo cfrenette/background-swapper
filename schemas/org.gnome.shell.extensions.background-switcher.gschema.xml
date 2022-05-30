@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.background-swapper" path="/org/gnome/shell/extensions/background-swapper/">
+    <key type="a(suuus)" name="profiles">
+      <default>[]</default>
+      <summary>Background Swapper Profiles</summary>
+      <description>This key stores the list of profiles for the background swapper.</description>
+    </key>
+  </schema>
+</schemalist>

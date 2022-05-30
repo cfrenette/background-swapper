@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwPreferencesPage" id="prefsPage">
+    <property name="title" translatable="yes">Background Swapper Configuration</property>
+    <child>
+      <object class="AdwPreferencesGroup" id="prefsGroup">
+        <property name="title" translatable="yes">Swapper Profiles</property>
+        <property name="header-suffix">
+          <object class="GtkButton" id="addButton">
+            <property name="icon_name">list-add-symbolic</property>
+            <accessibility>
+              <property name="label" translatable="yes">Add Swapper Preference</property>
+            </accessibility>
+            <style>
+              <class name="flat" />
+            </style>
+          </object>
+        </property>
+        <child>
+          <object class="GtkListBox" id="prefsList">
+            <property name="selection_mode">none</property>
+            <accessibility>
+              <property name="label" translatable="yes">Swapper Preferences</property>
+            </accessibility>
+            <style>
+              <class name="boxed-list" />
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

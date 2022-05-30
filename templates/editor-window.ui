@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkDialog" id="editor">
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="use_header_bar">1</property>
+    <child type="action">
+      <object class="GtkButton" id="cancelButton">
+        <property name="label" translatable="yes">_Cancel</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="applyButton">
+        <property name="label" translatable="yes">_Apply</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesPage" id="prefsPage">
+        <property name="title" translatable="yes">Background Swapper Configuration</property>
+        <child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="GtkListBox" id="listbox">
+                <property name="selection-mode">none</property>
+                <style>
+                  <class name="boxed-list" />
+                </style>
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="xalign">1</property>
+                        <property name="margin-start">12</property>
+                        <property name="label" translatable="yes">_Name</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">name</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="name">
+                        <property name="hexpand">True</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title" translatable="yes">Width</property>
+                    <property name="subtitle" translatable="yes">Aspect Ratio Width</property>
+                    <child type="suffix">
+                      <object class="GtkSpinButton" id="width">
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="adjustment">
+                          <object class="GtkAdjustment">
+                            <property name="lower">1</property>
+                            <property name="upper">100</property>
+                            <property name="step-increment">1</property>
+                            <property name="page-increment">10</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title" translatable="yes">Height</property>
+                    <property name="subtitle" translatable="yes">Aspect Ratio Height</property>
+                    <child type="suffix">
+                      <object class="GtkSpinButton" id="height">
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="adjustment">
+                          <object class="GtkAdjustment">
+                            <property name="lower">1</property>
+                            <property name="upper">100</property>
+                            <property name="step-increment">1</property>
+                            <property name="page-increment">10</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwComboRow" id="backgroundStyle">
+                    <property name="title">Background Style</property>
+                    <property name="selectable">0</property>
+                    <property name="model">
+                      <object class="GtkStringList" id="backgroundStyleOptions">
+                        <items>
+                          <item translatable="yes">None</item>
+                          <item translatable="yes">Wallpaper</item>
+                          <item translatable="yes">Centered</item>
+                          <item translatable="yes">Scaled</item>
+                          <item translatable="yes">Stretched</item>
+                          <item translatable="yes">Zoom</item>
+                          <item translatable="yes">Spanned</item>
+                        </items>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow" id="fileChooserRow">
+                    <property name="title" translatable="yes">Background</property>
+                    <property name="selectable">0</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="fileChooserButton">
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="child">
+                          <object class="AdwButtonContent">
+                            <property name="icon-name">document-open-symbolic</property>
+                            <property name="label" translatable="yes">_Select Image</property>
+                            <property name="use-underline">True</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="cancel">cancelButton</action-widget>
+      <action-widget response="apply" default="true">applyButton</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkFileChooserNative" id="fileChooser">
+    <property name="title" translatable="yes">Select Background Image</property>
+    <property name="modal">0</property>
+    <property name="select-multiple">0</property>
+    <property name="action">open</property>
+  </object>
+</interface>

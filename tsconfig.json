@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+      "target": "es2015",
+      "strict": true,
+      "rootDir": "./src",
+      "outDir": "./_build",
+      "forceConsistentCasingInFileNames": true,
+      "downlevelIteration": true,
+      "lib": [ "es2015" ],
+      "pretty": true,
+      "removeComments": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noEmitOnError": true
+  },
+  "include": [
+      "src/*.ts"
+  ]
+}
