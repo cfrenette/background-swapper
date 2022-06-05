@@ -4,5 +4,6 @@
     "description": "Automatically swap your desktop background based on the aspect ratio of the display. \n This can be useful for laptops where the docked display has a different aspect ratio than the built-in display.",
     "version": 0,
     "shell-version": ["42"],
-    "url": "https://127.0.0.1:443"
+    "session-modes": ["user", "unlock-dialog"],
+    "url": "https://github.com/cfrenette/background-swapper"
 }

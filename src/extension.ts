@@ -23,7 +23,6 @@ class Extension {
         this._monitorManager = Meta.get_backend().get_monitor_manager();
         const display: Meta.Display = global.display;
         const size: [number, number] = display.get_size();
-        this.setAspectRatio(size);
         this._connectedSignalIds.push(
             this._monitorManager!.connect("monitors-changed", this.monitorsChanged.bind(this))
         );
@@ -34,9 +33,16 @@ class Extension {
             )
         );
         this.monitorsChanged();
+        this.setAspectRatio(size);
     }
 
     disable(): void {
+        /*
+        unlock-dialog session mode is used for this extension in order be able to
+        detect display changes and swap backgrounds when the user changes displays 
+        while the screen is locked (e.g when docking a laptop without opening the lid)
+        */
+
         log(`disabling ${Me.metadata.name}`);
         this._connectedSignalIds!.forEach((sigId) => {
             this._monitorManager!.disconnect(sigId);
@@ -66,7 +72,7 @@ class Extension {
         const size: [number, number] = display.get_size();
         const newAspectRatio = this.getAspectRatio(size);
 
-        if (newAspectRatio == this._aspectRatio) {
+        if (newAspectRatio === this._aspectRatio) {
             return;
         }
         this._aspectRatio = newAspectRatio;
