@@ -15,7 +15,7 @@ if [ -z "$XDG_DATA_HOME"]; then
     BASE_DIR=$HOME
 fi
 
-EXTENSIONS_DIR="${BASE_DIR}/.local/share/gnome-shell/extensions"
+EXTENSIONS_DIR="${BASE_DIR}/gnome-shell/extensions"
 INSTALL_DIR="${EXTENSIONS_DIR}/${EXT_ID}"
 
 # Build the project
