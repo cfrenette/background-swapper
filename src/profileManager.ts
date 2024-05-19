@@ -1,17 +1,14 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-//@ts-ignore: Used for import after transpilation
-const Me = ExtensionUtils.getCurrentExtension();
+import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
-const { GLib } = imports.gi;
-
-import * as sp from "swapperProfile";
+import { SwapperProfile } from './swapperProfile.js';
 
 type Listener = (...args: any[]) => boolean | void;
 type SerializedProfile = [string, number, number, number, string];
 
 export class ProfileManager {
     private _settings: Gio.Settings;
-    private _profiles: Map<string, sp.SwapperProfile>;
+    private _profiles: Map<string, SwapperProfile>;
     private _listeners: Set<Listener> = new Set<Listener>();
 
     constructor(settings: Gio.Settings) {
@@ -20,10 +17,10 @@ export class ProfileManager {
         this._profiles = this.deserializeProfiles(profilesArray);
     }
 
-    private deserializeProfiles(arr: SerializedProfile[]): Map<string, sp.SwapperProfile> {
-        let profiles: Map<string, sp.SwapperProfile> = new Map<string, sp.SwapperProfile>();
+    private deserializeProfiles(arr: SerializedProfile[]): Map<string, SwapperProfile> {
+        let profiles: Map<string, SwapperProfile> = new Map<string, SwapperProfile>();
         arr.forEach(function (e) {
-            const p = new sp.SwapperProfile(e[0], e[1], e[2], e[3], e[4]);
+            const p = new SwapperProfile(e[0], e[1], e[2], e[3], e[4]);
             profiles.set(p.getAspectRatio(), p);
         });
         return profiles;
@@ -45,7 +42,7 @@ export class ProfileManager {
         });
     }
 
-    public getProfiles(): Map<string, sp.SwapperProfile> {
+    public getProfiles(): Map<string, SwapperProfile> {
         return this._profiles;
     }
 
@@ -53,11 +50,11 @@ export class ProfileManager {
         this._listeners.add(callback);
     }
 
-    public getProfileForRatio(ratio: string): sp.SwapperProfile | undefined {
+    public getProfileForRatio(ratio: string): SwapperProfile | undefined {
         return this._profiles.get(ratio);
     }
 
-    public addProfile(profile: sp.SwapperProfile): void {
+    public addProfile(profile: SwapperProfile): void {
         this._profiles.set(profile.getAspectRatio(), profile);
         const profiles: SerializedProfile[] = this.serializeProfiles();
         const value: GLib.Variant = new GLib.Variant("a(suuus)", profiles);
@@ -65,7 +62,7 @@ export class ProfileManager {
         this.notify();
     }
 
-    public removeProfile(profile: sp.SwapperProfile): void {
+    public removeProfile(profile: SwapperProfile): void {
         this._profiles.delete(profile.getAspectRatio());
         const profiles: SerializedProfile[] = this.serializeProfiles();
         const value: GLib.Variant = new GLib.Variant("a(suuus)", profiles);

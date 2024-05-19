@@ -1,26 +1,27 @@
-const extensionUtils = imports.misc.extensionUtils;
-//@ts-ignore: Used for import after transpilation
-const Me: imports.Extension = extensionUtils.getCurrentExtension();
+import Gio from 'gi://Gio';
+import Shell from 'gi://Shell';
+import Meta from 'gi://Meta';
+//@ts-ignore: GJS
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
-const { Gio, Meta } = imports.gi;
-
-import * as pm from "profileManager";
-import * as sp from "swapperProfile";
+import { SwapperProfile } from "./swapperProfile.js";
+import { ProfileManager } from "./profileManager.js";
 
 const EXTENSION_SETTINGS = "org.gnome.shell.extensions.background-swapper";
 const DESKTOP_SETTINGS = "org.gnome.desktop.background";
 
-class Extension {
+export default class BackgroundSwapper extends Extension {
+    private _gsettings?: Gio.Settings;
     private _aspectRatio!: string | null;
     private _monitorManager!: Meta.MonitorManager | null;
-    private _connectedSignalIds!: GObject.SignalID[] | null;
+    private _connectedSignalIds!: number[] | null;
 
-    constructor() {}
-
-    enable(): void {
-        log(`enabling ${Me.metadata.name}`);
+    public enable(): void {
+        log(`enabling ${this.metadata.name}`);
+        this._gsettings = this.getSettings(EXTENSION_SETTINGS);
         this._connectedSignalIds = [];
-        this._monitorManager = Meta.get_backend().get_monitor_manager();
+        this._monitorManager = Shell.Global.get().backend.get_monitor_manager();
         const display: Meta.Display = global.display;
         const size: [number, number] = display.get_size();
         this._connectedSignalIds.push(
@@ -36,27 +37,28 @@ class Extension {
         this.setAspectRatio(size);
     }
 
-    disable(): void {
+    public disable(): void {
         /*
         unlock-dialog session mode is used for this extension in order be able to
         detect display changes and swap backgrounds when the user changes displays 
         while the screen is locked (e.g when docking a laptop without opening the lid)
         */
 
-        log(`disabling ${Me.metadata.name}`);
+        log(`disabling ${this.metadata.name}`);
         this._connectedSignalIds!.forEach((sigId) => {
             this._monitorManager!.disconnect(sigId);
         });
         this._aspectRatio = null;
         this._monitorManager = null;
         this._connectedSignalIds = null;
+        this._gsettings = undefined;
     }
 
-    setAspectRatio(size: [number, number]): void {
+    private setAspectRatio(size: [number, number]): void {
         this._aspectRatio = this.getAspectRatio(size);
     }
 
-    getAspectRatio(size: [number, number]): string {
+    private getAspectRatio(size: [number, number]): string {
         //Reduce Fraction
         const findGcd = (x: number, y: number): number => {
             return y ? findGcd(y, x % y) : x;
@@ -67,7 +69,7 @@ class Extension {
         return widthRatio.toString() + ":" + heightRatio.toString();
     }
 
-    monitorsChanged(): void {
+    private monitorsChanged(): void {
         const display: Meta.Display = global.display;
         const size: [number, number] = display.get_size();
         const newAspectRatio = this.getAspectRatio(size);
@@ -76,8 +78,8 @@ class Extension {
             return;
         }
         this._aspectRatio = newAspectRatio;
-        const profile: sp.SwapperProfile | undefined = this.findProfile();
-        if (typeof profile === "undefined") {
+        const profile: SwapperProfile | undefined = this.findProfile();
+        if (profile === undefined) {
             log("No profile found for aspect ratio: " + this._aspectRatio);
             return;
         }
@@ -85,16 +87,17 @@ class Extension {
         this.applyProfile(profile);
     }
 
-    findProfile(): sp.SwapperProfile | undefined {
-        const profileManager = new pm.ProfileManager(
-            extensionUtils.getSettings(EXTENSION_SETTINGS)
-        );
+    private findProfile(): SwapperProfile | undefined {
+        if (this._gsettings === undefined) {
+            return undefined;
+        }
+        const profileManager = new ProfileManager(this._gsettings);
         return profileManager.getProfileForRatio(this._aspectRatio!);
     }
 
-    applyProfile(profile: sp.SwapperProfile): void {
+    private applyProfile(profile: SwapperProfile): void {
         try {
-            const backgroundSettings: Gio.Settings = extensionUtils.getSettings(DESKTOP_SETTINGS);
+            const backgroundSettings: Gio.Settings = this.getSettings(DESKTOP_SETTINGS);
 
             //TODO - Implement Ability to set different backgrounds for Light/Dark color-schemes
             backgroundSettings.set_string("picture-uri", profile.getBackgroundPath());
@@ -108,11 +111,4 @@ class Extension {
             log("Failed to apply profile for aspect ratio " + this._aspectRatio + ` ERROR:\n${e}`);
         }
     }
-}
-
-//@ts-ignore: Called by GNOME Shell
-function init(): Extension {
-    log(`initializing ${Me.metadata.name}`);
-
-    return new Extension();
 }

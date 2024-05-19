@@ -1,19 +1,19 @@
 {
   "compilerOptions": {
-      "target": "es2015",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+      "target": "ES2022",
       "strict": true,
+      "sourceMap": false,
       "rootDir": "./src",
-      "outDir": "./_build",
+      "outDir": "./dist",
       "forceConsistentCasingInFileNames": true,
-      "downlevelIteration": true,
-      "lib": [ "es2015" ],
+      "skipLibCheck": true,
+      "lib": [ "ES2022" ],
       "pretty": true,
       "removeComments": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-      "noEmitOnError": true
+      "noEmitOnError": true,
   },
-  "include": [
-      "src/*.ts"
-  ]
 }
