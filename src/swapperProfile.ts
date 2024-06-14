@@ -1,8 +1,5 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-//@ts-ignore: Used for import after transpilation
-const Me = ExtensionUtils.getCurrentExtension();
-
-const { Gio, GDesktopEnums } = imports.gi;
+import Gio from 'gi://Gio';
+import GDesktopEnums from 'gi://GDesktopEnums';
 
 export class SwapperProfile {
     private _name: string;

@@ -12,10 +12,10 @@ This can be useful for laptops where you might want to use one background when d
 
 To install this extension manually you will need:
 
--   GNOME 42+
+-   GNOME 45+
 -   A Typescript Compiler (`tsc`)
 
-To build and install locally run `scripts/install.sh`
+To build and install locally run `make install`
 
 ## How to Use Background Swapper
 
@@ -42,12 +42,6 @@ Enable the extension, and it will begin waiting for a display change. If the dis
 ## License
 
 Licensed under the GNU General Public License, Version 3.0 ([LICENSE](LICENSE) or https://www.gnu.org/licenses/gpl-3.0.en.html)
-
-## Developers
-
-This extension is written in [TypeScript](https://www.typescriptlang.org/) and transpiled to JavaScript. The resulting transpiled JavaScript contains module imports, which are not understood by the GJS API and must be replaced with `Me.imports.[module]` statements. This is done in the `build.sh` script.
-
-Minimal API (only the interfaces that the extension interacts with) is declared in the .d.ts (TypeScript Declaration) files.
 
 ### Contributions
 

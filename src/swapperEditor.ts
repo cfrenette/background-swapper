@@ -1,18 +1,15 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-//@ts-ignore: Used for import after transpilation
-const Me = ExtensionUtils.getCurrentExtension();
+import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
+import GDesktopEnums from 'gi://GDesktopEnums'
 
-const { Gtk } = imports.gi;
-
-import * as sp from "swapperProfile";
-import * as pm from "profileManager";
-
-const TEMPLATES_DIR: string = Me.dir.get_child("templates").get_path();
+import Preferences from "./prefs.js";
+import { SwapperProfile } from "./swapperProfile.js";
+import { ProfileManager } from "./profileManager.js";
 
 export class BackgroundSwapperEditor {
-    private _parent: Adw.PreferencesWindow;
+    private _parent?: Adw.PreferencesWindow;
     private _window: Gtk.Window;
-    private _profileManager: pm.ProfileManager;
+    private _profileManager: ProfileManager;
 
     private _textEntry: Adw.EntryRow;
     private _widthButton: Gtk.SpinButton;
@@ -21,19 +18,19 @@ export class BackgroundSwapperEditor {
     private _fileChooserButton: Gtk.Button;
     private _fileChooserRow: Adw.ActionRow;
     private _fileChooser: Gtk.Window;
-    private _updateProfile: sp.SwapperProfile | undefined;
+    private _updateProfile: SwapperProfile | undefined;
 
     constructor(
-        parent: Adw.PreferencesWindow,
-        profileManager: pm.ProfileManager,
-        profile?: sp.SwapperProfile
+        preferences: Preferences,
+        profileManager: ProfileManager,
+        profile?: SwapperProfile
     ) {
-        this._parent = parent;
+        this._parent = preferences.getWindow();
         this._profileManager = profileManager;
         this._updateProfile = profile;
 
-        const builder: Gtk.Builder = Gtk.Builder.new();
-        builder.add_from_file(TEMPLATES_DIR + "/editor-window.ui");
+        const builder: Gtk.Builder = Gtk.Builder.new()
+        builder.add_from_file(preferences.metadata.path + "/templates/editor-window.ui");
         this._window = builder.get_object("editor") as Gtk.Dialog;
 
         if (typeof this._updateProfile !== "undefined") {
@@ -79,12 +76,19 @@ export class BackgroundSwapperEditor {
         const width: number = this._widthButton.get_value();
         const height: number = this._heightButton.get_value();
         const style: GDesktopEnums.BackgroundStyle = this._styleDropdown.get_selected();
-        const path: string = this._fileChooserRow.get_subtitle();
+
+        let path: string = "";
+        let rowtitle = this._fileChooserRow.get_subtitle();
+
+        if (rowtitle != null) {
+            path = rowtitle;
+        }
 
         if (typeof this._updateProfile !== "undefined") {
             this._profileManager.removeProfile(this._updateProfile);
         }
-        this._profileManager.addProfile(new sp.SwapperProfile(name, width, height, style, path));
+
+        this._profileManager.addProfile(new SwapperProfile(name, width, height, style, path));
         this._window.destroy();
     }
 
@@ -101,7 +105,13 @@ export class BackgroundSwapperEditor {
         if (response != Gtk.ResponseType.ACCEPT) {
             return;
         }
-        let path: string = widget.get_file().get_uri();
+        let path: string = ""; 
+        let file = widget.get_file();
+        if (file != null) {
+            let maybe_path = file.get_uri();
+            if (maybe_path != null)
+                path = maybe_path;
+        }
         this._fileChooserRow.set_subtitle(path);
     }
 }

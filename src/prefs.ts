@@ -1,40 +1,29 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-//@ts-ignore: Used for import after transpilation
-const Me = ExtensionUtils.getCurrentExtension();
+import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
+import Gio from 'gi://Gio';
+import { ExtensionMetadata } from 'resource:///org/gnome/shell/extensions/extension.js'
+import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const { Adw, Gtk } = imports.gi;
-
-import * as se from "swapperEditor";
-import * as pm from "profileManager";
-import * as sp from "swapperProfile";
+import { SwapperProfile } from "./swapperProfile.js";
+import { ProfileManager } from "./profileManager.js";
+import { BackgroundSwapperEditor } from "./swapperEditor.js";
 
 const SETTINGS_SCHEMA_ID: string = "org.gnome.shell.extensions.background-swapper";
-const TEMPLATES_DIR: string = Me.dir.get_child("templates").get_path();
 
-// @ts-ignore: Called by GJS API
-function init() {}
-
-//@ts-ignore: Called by GJS API
-function fillPreferencesWindow(window: Adw.PreferencesWindow): void {
-    let prefs: Preferences = new Preferences(window);
-    let page: Adw.PreferencesPage = prefs.getPage();
-    window.add(page);
-}
-
-class Preferences {
-    private _window: Adw.PreferencesWindow;
+export default class Preferences extends ExtensionPreferences {
+    private _gsettings?: Gio.Settings;
+    private _window?: Adw.PreferencesWindow;
     private _page: Adw.PreferencesPage;
     private _prefsGroup: Adw.PreferencesGroup;
     private _prefsList: Gtk.ListBox;
-    private _profileManager: pm.ProfileManager;
-
-    constructor(window: Adw.PreferencesWindow) {
-        this._profileManager = new pm.ProfileManager(
-            ExtensionUtils.getSettings(SETTINGS_SCHEMA_ID)
-        );
-        this._window = window;
-        let builder = Gtk.Builder.new();
-        builder.add_from_file(TEMPLATES_DIR + "/prefs-window.ui");
+    private _profileManager: ProfileManager;
+    
+    constructor(metadata: ExtensionMetadata) {
+        super(metadata);
+        this._gsettings = this.getSettings(SETTINGS_SCHEMA_ID);
+        this._profileManager = new ProfileManager(this._gsettings);
+        let builder = Gtk.Builder.new()
+        builder.add_from_file(this.metadata.path + "/templates/prefs-window.ui");
         this._page = builder.get_object("prefsPage");
         let addButton: Gtk.Widget = builder.get_object("addButton");
         addButton.connect("clicked", this.addButtonClicked.bind(this));
@@ -44,7 +33,12 @@ class Preferences {
         this._profileManager.addListener(this.updatePrefsList.bind(this));
     }
 
-    private createRow(profile: sp.SwapperProfile): Adw.ActionRow {
+    public fillPreferencesWindow(window: Adw.PreferencesWindow): void {
+        this._window = window;
+        window.add(this._page);
+    }
+
+    private createRow(profile: SwapperProfile): Adw.ActionRow {
         const row: Adw.ActionRow = new Adw.ActionRow();
         row.set_title(profile.getName());
         const subtitle =
@@ -68,9 +62,13 @@ class Preferences {
         return row;
     }
 
+    public getWindow(): Adw.PreferencesWindow | undefined {
+        return this._window;
+    }
+
     public updatePrefsList(): void {
         const newList: Gtk.ListBox = new Gtk.ListBox();
-        const profiles: Map<string, sp.SwapperProfile> = this._profileManager.getProfiles();
+        const profiles: Map<string, SwapperProfile> = this._profileManager.getProfiles();
         if (profiles.size > 0) {
             profiles.forEach((p) => {
                 newList.append(this.createRow(p));
@@ -85,19 +83,23 @@ class Preferences {
         this._prefsList = newList;
     }
 
-    getPage(): Adw.PreferencesPage {
-        return this._page;
-    }
-
     public addButtonClicked(): void {
-        new se.BackgroundSwapperEditor(this._window, this._profileManager);
+        if (this._window == undefined) {
+            log("window not set");
+            return;
+        }
+        new BackgroundSwapperEditor(this, this._profileManager);
     }
 
-    public editButtonClicked(profile: sp.SwapperProfile): void {
-        new se.BackgroundSwapperEditor(this._window, this._profileManager, profile);
+    public editButtonClicked(profile: SwapperProfile): void {
+        if (this._window == undefined) {
+            log("window not set");
+            return;
+        }
+        new BackgroundSwapperEditor(this, this._profileManager, profile);
     }
 
-    public deleteButtonClicked(profile: sp.SwapperProfile): void {
+    public deleteButtonClicked(profile: SwapperProfile): void {
         this._profileManager.removeProfile(profile);
     }
 }
